@@ -1,0 +1,32 @@
+application:
+  name: listmonk
+  pods:
+  - name: app
+    image: listmonk/listmonk:latest
+    path: /
+    servicePorts:
+    - 9000
+    vars:
+      LISTMONK_app__address: "0.0.0.0:9000"
+      LISTMONK_db__host: postgres.pod
+      LISTMONK_db__port: "5432"
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: listmonk
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__ssl_mode: disable
+    volumes:
+    - name: listmonk-uploads
+      mountPath: /listmonk/uploads
+      size: 5Gi
+  - name: postgres
+    image: postgres:16-alpine
+    servicePorts:
+    - 5432
+    vars:
+      POSTGRES_DB: listmonk
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: listmonk
+    volumes:
+    - name: listmonk-db
+      mountPath: /var/lib/postgresql/data
+      size: 5Gi
