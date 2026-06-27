@@ -10,10 +10,7 @@ application:
     # command (passed to the image's docker-entrypoint.sh) to run the idempotent
     # install + upgrade, then serve. config.toml is absent in env-only mode, so
     # listmonk uses the LISTMONK_* env vars below.
-    command:
-    - sh
-    - -c
-    - ./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && exec ./listmonk
+    command: ["sh", "-c", "./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && exec ./listmonk"]
     servicePorts:
     - 9000
     vars:
