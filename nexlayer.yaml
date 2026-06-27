@@ -4,6 +4,8 @@ application:
   - name: app
     image: listmonk/listmonk:latest
     path: /
+    # String-form command (KB deploy contract). The platform wraps/execs it.
+    command: sh -c "./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && exec ./listmonk"
     servicePorts:
     - 9000
     vars:
@@ -11,9 +13,12 @@ application:
       LISTMONK_db__host: listmonk-postgres-service
       LISTMONK_db__port: "5432"
       LISTMONK_db__user: listmonk
-      LISTMONK_db__password: listmonk
+      LISTMONK_db__password: ${POSTGRES_PASSWORD}
       LISTMONK_db__database: listmonk
       LISTMONK_db__ssl_mode: disable
+      LISTMONK_ADMIN_USER: admin
+      LISTMONK_ADMIN_PASSWORD: listmonkadmin
+      TZ: Etc/UTC
     volumes:
     - name: listmonk-uploads
       mountPath: /listmonk/uploads
@@ -25,7 +30,8 @@ application:
     vars:
       POSTGRES_DB: listmonk
       POSTGRES_USER: listmonk
-      POSTGRES_PASSWORD: listmonk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
     - name: listmonk-db
       mountPath: /var/lib/postgresql/data
