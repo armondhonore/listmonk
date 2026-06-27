@@ -2,7 +2,7 @@ application:
   name: listmonk
   pods:
   - name: app
-    image: listmonk/listmonk:latest
+    image: mirror.gcr.io/listmonk/listmonk:latest
     path: /
     # String-form command (KB deploy contract). The platform wraps/execs it.
     command: sh -c "./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && exec ./listmonk"
@@ -24,7 +24,7 @@ application:
       mountPath: /listmonk/uploads
       size: 5Gi
   - name: postgres
-    image: postgres:16-alpine
+    image: mirror.gcr.io/library/postgres:16-alpine
     servicePorts:
     - 5432
     vars:
