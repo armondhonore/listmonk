@@ -8,8 +8,12 @@ application:
     # empty database ("relation does not exist"). The DB schema must be created
     # with `--install` and migrated with `--upgrade` on first boot. Override the
     # command (passed to the image's docker-entrypoint.sh) to run the idempotent
-    # install + upgrade, then serve. --config '' forces env-only configuration.
-    command: ["sh", "-c", "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && exec ./listmonk --config ''"]
+    # install + upgrade, then serve. config.toml is absent in env-only mode, so
+    # listmonk uses the LISTMONK_* env vars below.
+    command:
+    - sh
+    - -c
+    - ./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && exec ./listmonk
     servicePorts:
     - 9000
     vars:
@@ -20,7 +24,10 @@ application:
       LISTMONK_db__host: listmonk-postgres-service
       LISTMONK_db__port: "5432"
       LISTMONK_db__user: listmonk
-      LISTMONK_db__password: listmonk
+      # Reference the SAME provisioned secret the postgres pod is initialized with
+      # (the pipeline hoists POSTGRES_PASSWORD to ${POSTGRES_PASSWORD} and provisions
+      # one value). Using a literal here desyncs from the regenerated DB password.
+      LISTMONK_db__password: ${POSTGRES_PASSWORD}
       LISTMONK_db__database: listmonk
       LISTMONK_db__ssl_mode: disable
       # Auto-create the super-admin on first install so the UI is usable.
@@ -38,7 +45,7 @@ application:
     vars:
       POSTGRES_DB: listmonk
       POSTGRES_USER: listmonk
-      POSTGRES_PASSWORD: listmonk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       # postgres:16-alpine initdb refuses a non-empty mount root; use a sub-dir.
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
